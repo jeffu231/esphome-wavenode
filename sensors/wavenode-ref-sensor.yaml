@@ -1,0 +1,45 @@
+# variables needed
+# adc_id  id of the adc that provides the values
+# multiplexer_pin   adc pin that provides the rev voltage
+# name
+# id  unique id without spaces  will resolve to ${id}_ref
+# topic_prefix  topic prefix to publish state to. Will resolve to ${topic_prefix}/ref/state
+# gain  2.048 for 300w sensor or 4.096 for high pwr sensor
+
+- platform: ads1115
+  id: ${id}_ref
+  name: $name
+  state_topic: $topic_prefix/ref/state
+  multiplexer: $multiplexer_pin
+  ads1115_id: $adc_id
+  gain: $gain
+  update_interval: 3ms
+  state_class: "measurement"
+  device_class: "power"
+  unit_of_measurement: "W"
+  accuracy_decimals: 1
+  filters:
+    - calibrate_polynomial:
+        degree: 2
+        datapoints:
+          - 0.0 -> 0.0
+          - .071 -> 1.0
+          - .100 -> 2.0
+          - .122 -> 3.0
+          - .141 -> 4.0
+          - .158 -> 5.0
+          - .223 -> 10.0
+          - .500 -> 50.0
+          - .707 -> 100.0
+          - .999 -> 200.0
+          - 1.224 -> 300.0
+          - 1.580 -> 500.0
+          - 1.869 -> 700.0
+          - 2.234 -> 1000.0
+          - 2.737 -> 1500.0
+    - max:
+        window_size: 10
+        send_every: 10
+    - delta: .1
+    - lambda: return abs(x);
+

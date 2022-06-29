@@ -1,0 +1,107 @@
+# Wavenode test configuration
+
+substitutions:
+  devicename: wavenode-test
+  wifi_ssid: !secret wifi_ssid
+  wifi_password: !secret wifi_password
+  ap_fallback_password: !secret ap_fallback_password
+  ota_password: !secret ota_password
+  mqtt_broker_name: !secret mqtt_broker
+  mqtt_device_root_topic: 9_barbarotto/hamradio/automation/station
+  mqtt_root_topic: 9_barbarotto/hamradio/sensors/wavenode/module-1
+  ports_short_name: "Wavenode"
+  log_level: ERROR
+
+packages:
+  board: 
+    url: https://github.com/jeffu231/esphome-packages
+    file: boards/nodemcu32.yaml
+  wifi: 
+    url: https://github.com/jeffu231/esphome-packages
+    file: common/wifi.yaml
+  ota: 
+    url: https://github.com/jeffu231/esphome-packages
+    file: common/ota.yaml
+  mqtt: 
+    url: https://github.com/jeffu231/esphome-packages
+    file: common/mqtt.yaml
+  ads1115-1: 
+    url: https://github.com/jeffu231/esphome-packages
+    file: sensor/ads1115-0x48.yaml
+
+sensor:
+  - platform: ads1115
+    multiplexer: 'A0_GND'
+    gain: 2.048
+    update_interval: 3ms
+    name: "$ports_short_name 1 FWD"
+    ads1115_id: ads1115_0x48
+    id: wavenode_1_fwd
+    state_class: "measurement"
+    device_class: "power"
+    unit_of_measurement: "W"
+    accuracy_decimals: 0
+    state_topic: $mqtt_root_topic/port-1/fwd/state
+    filters:
+      - calibrate_polynomial:
+          degree: 2
+          datapoints:
+            - 0.0 -> 0.0
+            - .071 -> 1.0
+            - .223 -> 10.0
+            - .500 -> 50.0
+            - .707 -> 100.0
+            - .999 -> 200.0
+            - 1.224 -> 300.0
+      - max:
+          window_size: 10
+          send_every: 10
+      - delta: 1
+      
+  - platform: ads1115
+    multiplexer: 'A1_GND'
+    gain: 2.048
+    update_interval: 3ms
+    name: "$ports_short_name 1 REF"
+    ads1115_id: ads1115_0x48
+    id: wavenode_1_ref
+    state_class: "measurement"
+    device_class: "power"
+    unit_of_measurement: "W"
+    accuracy_decimals: 1
+    state_topic: $mqtt_root_topic/port-1/rev/state
+    filters:
+      - calibrate_polynomial:
+          degree: 2
+          datapoints:
+            - 0.0 -> 0.0
+            - .071 -> 1.0
+            - .223 -> 10.0
+            - .500 -> 50.0
+            - .707 -> 100.0
+            - .999 -> 200.0
+            - 1.224 -> 300.0
+      - max:
+          window_size: 10
+          send_every: 10
+      - delta: .1
+
+#SWR Sensor
+  - platform: template
+    name: "Wavenode 1 SWR"
+    lambda: |-
+      if ( id(wavenode_1_fwd).state < .1 || id(wavenode_1_ref).state < .1){
+        return 1;
+      }else{
+        return ( 1.0 + sqrt( id(wavenode_1_ref).state / id(wavenode_1_fwd).state) ) / ( 1.0 - sqrt( id(wavenode_1_ref).state / id(wavenode_1_fwd).state) );
+      }
+    update_interval: 100ms
+    state_topic: $mqtt_root_topic/port-1/swr/state
+    filters:
+      - delta: 0.1
+    
+
+
+      
+
+
