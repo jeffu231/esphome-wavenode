@@ -2,16 +2,16 @@
 # adc_id  id of the adc that provides the values
 # multiplexer_pin   adc pin that provides the rev voltage
 # name
-# id  unique id without spaces  will resolve to ${id}_ref
+# id  unique id without spaces
 # topic_prefix  topic prefix to publish state to. Will resolve to ${topic_prefix}/ref/state
 # gain  2.048 for 300w sensor or 4.096 for high pwr sensor
 
 - platform: ads1115
-  id: ${id}_ref
+  id: ${id}
   name: $name
-  state_topic: $topic_prefix/ref/state
+  state_topic: $state_topic
   multiplexer: $multiplexer_pin
-  ads1115_id: $adc_id
+  ads1115_id: ${adc_id}
   gain: $gain
   update_interval: 3ms
   state_class: "measurement"

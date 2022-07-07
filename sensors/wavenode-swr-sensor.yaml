@@ -2,18 +2,18 @@
 # name
 # id_fwd  id of the fwd power sensor
 # id_ref  id of the ref power sensor
-# topic_prefix
+# state_topic topic to publish the state to
 
 #SWR Sensor
 - platform: template
   name: "$name SWR"
   lambda: |-
-    if ( id(${id_fwd}_fwd).state < .1 || id(${id_ref}_ref).state < .1){
+    if ( id(${id_fwd}).state < .1 || id(${id_ref}).state < .1){
       return 1;
     }else{
-      return ( 1.0 + sqrt( id(${id_ref}_ref).state / id(${id_fwd}_fwd).state) ) / ( 1.0 - sqrt( id(${id_ref}_ref).state / id(${id_fwd}_fwd).state) );
+      return ( 1.0 + sqrt( id(${id_ref}).state / id(${id_fwd}).state) ) / ( 1.0 - sqrt( id(${id_ref}).state / id(${id_fwd}).state) );
     }
   update_interval: 100ms
-  state_topic: $topic_prefix/swr/state
+  state_topic: $state_topic
   filters:
     - delta: 0.1

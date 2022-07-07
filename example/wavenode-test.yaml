@@ -31,76 +31,37 @@ packages:
 
 sensor:
   # Fwd power sensor port 1
-  - platform: ads1115
-    multiplexer: 'A0_GND'
-    gain: 2.048
-    update_interval: 3ms
-    name: "$ports_short_name 1 FWD"
-    ads1115_id: ads1115_0x48
-    id: wavenode_1_fwd
-    state_class: "measurement"
-    device_class: "power"
-    unit_of_measurement: "W"
-    accuracy_decimals: 0
-    state_topic: $mqtt_root_topic/port-1/fwd/state
-    filters:
-      - calibrate_polynomial:
-          degree: 2
-          datapoints:
-            - 0.0 -> 0.0
-            - .071 -> 1.0
-            - .223 -> 10.0
-            - .500 -> 50.0
-            - .707 -> 100.0
-            - .999 -> 200.0
-            - 1.224 -> 300.0
-      - max:
-          window_size: 10
-          send_every: 10
-      - delta: 1
+  - <<: !include 
+      file: ../sensors/wavenode-fwd-sensor.yaml 
+      vars: 
+        multiplexer_pin: 'A0_GND'
+        gain: 2.048
+        name: "$ports_short_name 1 FWD"
+        adc_id: ads1115_0x48
+        id: wavenode_1_fwd
+        state_topic: $mqtt_root_topic/port-1/fwd/state
+      
       
   #Ref power sensor port 1
-  - platform: ads1115
-    multiplexer: 'A1_GND'
-    gain: 2.048
-    update_interval: 3ms
-    name: "$ports_short_name 1 REF"
-    ads1115_id: ads1115_0x48
-    id: wavenode_1_ref
-    state_class: "measurement"
-    device_class: "power"
-    unit_of_measurement: "W"
-    accuracy_decimals: 1
-    state_topic: $mqtt_root_topic/port-1/rev/state
-    filters:
-      - calibrate_polynomial:
-          degree: 2
-          datapoints:
-            - 0.0 -> 0.0
-            - .071 -> 1.0
-            - .223 -> 10.0
-            - .500 -> 50.0
-            - .707 -> 100.0
-            - .999 -> 200.0
-            - 1.224 -> 300.0
-      - max:
-          window_size: 10
-          send_every: 10
-      - delta: .1
+  - <<: !include
+      file: ../sensors/wavenode-ref-sensor.yaml
+      vars: 
+        multiplexer_pin: 'A1_GND'
+        gain: 2.048
+        name: "$ports_short_name 1 REF"
+        adc_id  : ads1115_0x48
+        id: wavenode_1_ref 
+        state_topic: $mqtt_root_topic/port-1/ref/state
 
 #SWR Sensor port 1
-  - platform: template
-    name: "$ports_short_name 1 SWR"
-    lambda: |-
-      if ( id(wavenode_1_fwd).state < .1 || id(wavenode_1_ref).state < .1){
-        return 1;
-      }else{
-        return ( 1.0 + sqrt( id(wavenode_1_ref).state / id(wavenode_1_fwd).state) ) / ( 1.0 - sqrt( id(wavenode_1_ref).state / id(wavenode_1_fwd).state) );
-      }
-    update_interval: 100ms
-    state_topic: $mqtt_root_topic/port-1/swr/state
-    filters:
-      - delta: 0.1
+  - <<: !include
+      file: ../sensors/wavenode-swr-sensor.yaml
+      vars:
+        name: "$ports_short_name 1 SWR"
+        id_fwd: wavenode_1_fwd
+        id_ref:  wavenode_1_ref
+        state_topic: $mqtt_root_topic/port-1/swr/state
+
     
 
 
