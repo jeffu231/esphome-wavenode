@@ -30,6 +30,7 @@ packages:
     file: sensor/ads1115-0x48.yaml
 
 sensor:
+  # Fwd power sensor port 1
   - platform: ads1115
     multiplexer: 'A0_GND'
     gain: 2.048
@@ -58,6 +59,7 @@ sensor:
           send_every: 10
       - delta: 1
       
+  #Ref power sensor port 1
   - platform: ads1115
     multiplexer: 'A1_GND'
     gain: 2.048
@@ -86,7 +88,7 @@ sensor:
           send_every: 10
       - delta: .1
 
-#SWR Sensor
+#SWR Sensor port 1
   - platform: template
     name: "$ports_short_name 1 SWR"
     lambda: |-
