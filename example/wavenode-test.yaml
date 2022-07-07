@@ -88,7 +88,7 @@ sensor:
 
 #SWR Sensor
   - platform: template
-    name: "Wavenode 1 SWR"
+    name: "$ports_short_name 1 SWR"
     lambda: |-
       if ( id(wavenode_1_fwd).state < .1 || id(wavenode_1_ref).state < .1){
         return 1;
