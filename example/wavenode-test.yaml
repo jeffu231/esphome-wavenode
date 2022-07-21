@@ -28,6 +28,7 @@ packages:
   ads1115-1: 
     url: https://github.com/jeffu231/esphome-packages
     file: sensor/ads1115-0x48.yaml
+    refresh: 1h
 
 sensor:
   # Fwd power sensor port 1
@@ -42,7 +43,7 @@ sensor:
         state_topic: $mqtt_root_topic/port-1/fwd/state
       
       
-  #Ref power sensor port 1
+  # Ref power sensor port 1
   - <<: !include
       file: ../sensors/wavenode-ref-sensor.yaml
       vars: 
@@ -53,7 +54,7 @@ sensor:
         id: wavenode_1_ref 
         state_topic: $mqtt_root_topic/port-1/ref/state
 
-#SWR Sensor port 1
+  # SWR Sensor port 1
   - <<: !include
       file: ../sensors/wavenode-swr-sensor.yaml
       vars:
@@ -62,9 +63,34 @@ sensor:
         id_ref:  wavenode_1_ref
         state_topic: $mqtt_root_topic/port-1/swr/state
 
-    
-
-
+  # Fwd power sensor port 2
+  - <<: !include 
+      file: ../sensors/wavenode-fwd-sensor.yaml 
+      vars: 
+        multiplexer_pin: 'A2_GND'
+        gain: 2.048
+        name: "$ports_short_name 2 FWD"
+        adc_id: ads1115_0x48
+        id: wavenode_2_fwd
+        state_topic: $mqtt_root_topic/port-2/fwd/state
       
+      
+  # Ref power sensor port 2
+  - <<: !include
+      file: ../sensors/wavenode-ref-sensor.yaml
+      vars: 
+        multiplexer_pin: 'A3_GND'
+        gain: 2.048
+        name: "$ports_short_name 2 REF"
+        adc_id: ads1115_0x48
+        id: wavenode_2_ref 
+        state_topic: $mqtt_root_topic/port-2/ref/state
 
-
+  # SWR Sensor port 2
+  - <<: !include
+      file: ../sensors/wavenode-swr-sensor.yaml
+      vars:
+        name: "$ports_short_name 2 SWR"
+        id_fwd: wavenode_2_fwd
+        id_ref:  wavenode_2_ref
+        state_topic: $mqtt_root_topic/port-2/swr/state

@@ -6,9 +6,9 @@
 
 #SWR Sensor
 - platform: template
-  name: "$name SWR"
+  name: "$name"
   lambda: |-
-    if ( id(${id_fwd}).state < .1 || id(${id_ref}).state < .1){
+    if ( id(${id_fwd}).state < .1 || id(${id_ref}).state < .01){
       return 1;
     }else{
       return ( 1.0 + sqrt( id(${id_ref}).state / id(${id_fwd}).state) ) / ( 1.0 - sqrt( id(${id_ref}).state / id(${id_fwd}).state) );
@@ -16,4 +16,4 @@
   update_interval: 100ms
   state_topic: $state_topic
   filters:
-    - delta: 0.1
+    - delta: 0.01
