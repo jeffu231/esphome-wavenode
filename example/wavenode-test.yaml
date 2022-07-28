@@ -7,9 +7,9 @@ substitutions:
   ap_fallback_password: !secret ap_fallback_password
   ota_password: !secret ota_password
   mqtt_broker_name: !secret mqtt_broker
-  mqtt_device_root_topic: 9_barbarotto/hamradio/automation/station
-  mqtt_root_topic: 9_barbarotto/hamradio/sensors/wavenode/module-1
-  ports_short_name: "Wavenode"
+  mqtt_device_root_topic: 9_barbarotto/hamradio/wavenode-test
+  wavenode1-root-topic: 9_barbarotto/hamradio/wavenode-test/sensors/wavenode/module01
+  wavenode_pretty_name: "Wavenode"
   log_level: ERROR
 
 packages:
@@ -29,6 +29,10 @@ packages:
     url: https://github.com/jeffu231/esphome-packages
     file: sensor/ads1115-0x48.yaml
     refresh: 1h
+  ads1115-2: 
+    url: https://github.com/jeffu231/esphome-packages
+    file: sensor/ads1115-0x49.yaml
+    refresh: 1h
 
 sensor:
   # Fwd power sensor port 1
@@ -37,10 +41,10 @@ sensor:
       vars: 
         multiplexer_pin: 'A0_GND'
         gain: 2.048
-        name: "$ports_short_name 1 FWD"
+        name: "$wavenode_pretty_name 1 FWD"
         adc_id: ads1115_0x48
         id: wavenode_1_fwd
-        state_topic: $mqtt_root_topic/port-1/fwd/state
+        state_topic: $wavenode1-root-topic/port/1/fwd/state
       
       
   # Ref power sensor port 1
@@ -49,19 +53,19 @@ sensor:
       vars: 
         multiplexer_pin: 'A1_GND'
         gain: 2.048
-        name: "$ports_short_name 1 REF"
+        name: "$wavenode_pretty_name 1 REF"
         adc_id: ads1115_0x48
         id: wavenode_1_ref 
-        state_topic: $mqtt_root_topic/port-1/ref/state
+        state_topic: $wavenode1-root-topic/port/1/ref/state
 
   # SWR Sensor port 1
   - <<: !include
       file: ../sensors/wavenode-swr-sensor.yaml
       vars:
-        name: "$ports_short_name 1 SWR"
+        name: "$wavenode_pretty_name 1 SWR"
         id_fwd: wavenode_1_fwd
         id_ref:  wavenode_1_ref
-        state_topic: $mqtt_root_topic/port-1/swr/state
+        state_topic: $wavenode1-root-topic/port/1/swr/state
 
   # Fwd power sensor port 2
   - <<: !include 
@@ -69,10 +73,10 @@ sensor:
       vars: 
         multiplexer_pin: 'A2_GND'
         gain: 2.048
-        name: "$ports_short_name 2 FWD"
+        name: "$wavenode_pretty_name 2 FWD"
         adc_id: ads1115_0x48
         id: wavenode_2_fwd
-        state_topic: $mqtt_root_topic/port-2/fwd/state
+        state_topic: $wavenode1-root-topic/port/2/fwd/state
       
       
   # Ref power sensor port 2
@@ -81,16 +85,16 @@ sensor:
       vars: 
         multiplexer_pin: 'A3_GND'
         gain: 2.048
-        name: "$ports_short_name 2 REF"
+        name: "$wavenode_pretty_name 2 REF"
         adc_id: ads1115_0x48
         id: wavenode_2_ref 
-        state_topic: $mqtt_root_topic/port-2/ref/state
+        state_topic: $wavenode1-root-topic/port/2/ref/state
 
   # SWR Sensor port 2
   - <<: !include
       file: ../sensors/wavenode-swr-sensor.yaml
       vars:
-        name: "$ports_short_name 2 SWR"
+        name: "$wavenode_pretty_name 2 SWR"
         id_fwd: wavenode_2_fwd
         id_ref:  wavenode_2_ref
-        state_topic: $mqtt_root_topic/port-2/swr/state
+        state_topic: $wavenode1-root-topic/port/2/swr/state
