@@ -20,7 +20,7 @@
   accuracy_decimals: 3
   filters:
     - calibrate_polynomial:
-        degree: 14
+        degree: 16
         datapoints:
           - 0.0 -> 0.0
           - .022 -> 0.3
