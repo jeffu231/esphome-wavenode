@@ -13,32 +13,46 @@
   multiplexer: $multiplexer_pin
   ads1115_id: ${adc_id}
   gain: $gain
-  update_interval: 3ms
+  sps: $sps
+  update_interval: 10ms
   state_class: "measurement"
   device_class: "power"
   unit_of_measurement: "W"
   accuracy_decimals: 0
   filters:
+  # Baseline noise voltage filter.
+    - lambda: |-
+        if ( x < .001){
+          return 0.0;
+        }else{
+          return x;
+        }
     - calibrate_polynomial:
-        degree: 14
+        degree: 8
         datapoints:
           - 0.0 -> 0.0
-          - .071 -> 1.0
-          - .100 -> 2.0
-          - .122 -> 3.0
-          - .141 -> 4.0
-          - .158 -> 5.0
-          - .223 -> 10.0
-          - .500 -> 50.0
-          - .707 -> 100.0
-          - .999 -> 200.0
+          - 0.020 -> .1
+          - 0.071 -> 1.0
+          - 0.100 -> 2.0
+          - 0.122 -> 3.0
+          - 0.141 -> 4.0
+          - 0.158 -> 5.0
+          - 0.223 -> 10.0
+          - 0.500 -> 50.0
+          - 0.799 -> 100.0
+          - 0.999 -> 200.0
           - 1.224 -> 300.0
-          - 1.580 -> 500.0
-          - 1.869 -> 700.0
-          - 2.234 -> 1000.0
-          - 2.737 -> 1500.0
-    - max:
-        window_size: 10
-        send_every: 10
-    - delta: 1
-    - lambda: return abs(x);
+          - 1.760 -> 550.0
+          - 2.150 -> 810.0
+          - 2.440 -> 1040.0
+          - 2.710 -> 1290.0
+          - 2.860 -> 1440.0
+          - 3.000 -> 1600.0
+    - lambda: |-
+        if ( x < 0) {
+          return 0.0;
+        }
+        else {
+          return x;
+        }
+    - delta: .01

@@ -13,7 +13,7 @@
     }else{
       return ( 1.0 + sqrt( id(${id_ref}).state / id(${id_fwd}).state) ) / ( 1.0 - sqrt( id(${id_ref}).state / id(${id_fwd}).state) );
     }
-  update_interval: 100ms
+  update_interval: 125ms
   state_topic: $state_topic
   filters:
     - delta: 0.01
