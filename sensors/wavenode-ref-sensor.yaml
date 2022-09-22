@@ -55,5 +55,8 @@
         else {
           return x;
         }
+    - max:
+        window_size: 5
+        send_every: 1
     - delta: .01
 
