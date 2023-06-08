@@ -51,21 +51,21 @@
           { 3.000, 1600.0 }
         };
 
-        ESP_LOGD("wavenode sensor fwd", "Incoming value: %f", x);
+        ESP_LOGD("wavenode.filter.map.fwd", "%s: Incoming Voltage=%fV", id(${id}).get_name().c_str(), x);
 
-        if(x < .001) return 0.0;
+        if(x < .002) return 0.0;
 
         int count = sizeof(map)/sizeof(map[0]);
         for(int i = 1; i < count; i++){
           if( x < map[i].x ){
-            ESP_LOGD("wavenode sensor fwd", "Interpolated value between indexes: %i , %i", i - 1 , i);
+            ESP_LOGD("wavenode.filter.map.fwd", "%s: Interpolate range: %.1fW - %.1fW", id(${id}).get_name().c_str(), map[i - 1].y , map[i].y);
             float w = lerp( (x - map[i-1].x) / (map[i].x - map[i - 1].x) , map[i-1].y, map[i].y  );
-            ESP_LOGD("wavenode sensor fwd", "Interpolated value: %f", w);
+            ESP_LOGD("wavenode.filter.map.fwd", "%s: Interpolated Watts=%fW", id(${id}).get_name().c_str(), w);
             return w;
           }  
         }
 
-        ESP_LOGE("wavenode sensor fwd", "Value out of range: %f", x);
+        ESP_LOGE("wavenode.filter.map.fwd", "%s: Voltage out of range: %fV", id(${id}).get_name().c_str(), x);
 
         return map[count-1].y;
 
