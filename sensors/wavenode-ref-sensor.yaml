@@ -14,51 +14,63 @@
   ads1115_id: ${adc_id}
   gain: $gain
   sps: $sps
-  update_interval: 10ms
+  update_interval: 7ms
   state_class: "measurement"
   device_class: "power"
   unit_of_measurement: "W"
   accuracy_decimals: 2
   filters:
-  # Baseline noise voltage filter.
     - lambda: |-
-        if ( x < .01){
-          return 0.0;
-        }else{
-          return x;
+        struct Point
+        {
+            float x;
+            float y;
+        };
+        Point map[22] = {
+          { 0.000, 0.0 }, 
+          { 0.035, 1.0 },
+          { 0.065, 2.0 },
+          { 0.085, 3.0 },
+          { 0.105, 4.0 },
+          { 0.125, 5.0 },
+          { 0.200, 10.0 },
+          { 0.350, 25.0 },
+          { 0.510, 50.0 },
+          { 0.625, 75.0 },
+          { 0.757, 100.0 },
+          { 0.852, 125.0 },
+          { 0.946, 150.0 },
+          { 1.020, 175.0 },
+          { 1.100, 200.0 },
+          { 1.224, 300.0 },
+          { 1.760, 550.0 },
+          { 2.150, 810.0 },
+          { 2.440, 1040.0 },
+          { 2.710, 1290.0 },
+          { 2.860, 1440.0 },
+          { 3.000, 1600.0 }
+        };
+
+        ESP_LOGD("wavenode sensor ref", "Incoming value: %f", x);
+
+        if(x < .001) return 0.0;
+
+        int count = sizeof(map)/sizeof(map[0]);
+        for(int i = 1; i < count; i++){
+          if( x < map[i].x ){
+            ESP_LOGD("wavenode sensor ref", "Interpolated value between indexes: %i , %i", i - 1, i);
+            float w = lerp( (x - map[i-1].x) / (map[i].x - map[i - 1].x) , map[i-1].y, map[i].y  );
+            ESP_LOGD("wavenode sensor ref", "Interpolated value: %f", w);
+            return w;
+          }  
         }
-    - calibrate_polynomial:
-        degree: 8
-        datapoints:
-          - 0.0 -> 0.0
-          - 0.020 -> .1
-          - 0.032 -> 1.0
-          - 0.060 -> 2.0
-          - 0.122 -> 5.0
-          - 0.193 -> 10.0
-          - 0.510 -> 50.0
-          - 0.625 -> 75.0
-          - 0.757 -> 100.0
-          - 0.852 -> 125.0
-          - 0.946 -> 150.0
-          - 1.020 -> 175.0
-          - 1.100 -> 200.0
-          - 1.224 -> 300.0
-#          - 1.760 -> 550.0
-#          - 2.150 -> 810.0
-#          - 2.440 -> 1040.0
-#          - 2.710 -> 1290.0
-#          - 2.860 -> 1440.0
-#          - 3.000 -> 1600.0
-    - lambda: |-
-        if ( x < 0) {
-          return 0.0;
-        }
-        else {
-          return x;
-        }
+
+        ESP_LOGE("wavenode sensor ref", "Value out of range: %f", x);
+
+        return map[count-1].y;
+
     - max:
         window_size: 5
-        send_every: 1
+        send_every: 5
     - delta: .01
 
