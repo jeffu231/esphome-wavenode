@@ -13,7 +13,7 @@
   multiplexer: $multiplexer_pin
   ads1115_id: ${adc_id}
   gain: $gain
-  sps: $sps
+  sample_rate: $sample_rate
   update_interval: 7ms
   state_class: "measurement"
   device_class: "power"
@@ -59,7 +59,7 @@
         for(int i = 1; i < count; i++){
           if( x < map[i].x ){
             ESP_LOGD("wavenode.filter.map.fwd", "%s: Interpolate range: %.1fW - %.1fW", id(${id}).get_name().c_str(), map[i - 1].y , map[i].y);
-            float w = lerp( (x - map[i-1].x) / (map[i].x - map[i - 1].x) , map[i-1].y, map[i].y  );
+            float w = std::lerp( map[i-1].y, map[i].y, (x - map[i-1].x) / (map[i].x - map[i - 1].x)   );
             ESP_LOGD("wavenode.filter.map.fwd", "%s: Interpolated Watts=%fW", id(${id}).get_name().c_str(), w);
             return w;
           }  
